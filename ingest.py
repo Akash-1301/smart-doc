@@ -26,7 +26,7 @@ def scrape_wikipedia(query):
         page = wikipedia.page(query)
         return [Document(page_content=page.content, metadata={"source": "Wikipedia", "title": page.title})]
     except Exception as e:
-        print(f"[Wikipedia] ❌ {e}")
+        print(f"[Wikipedia]  {e}")
         return []
 
 async def scrape_medium(query):
@@ -39,7 +39,7 @@ async def scrape_medium(query):
                 for entry in data.get("items", [])[:MAX_ARTICLES]:
                     articles.append(Document(page_content=entry["content"], metadata={"source": entry["link"]}))
     except Exception as e:
-        print(f"[Medium] ❌ {e}")
+        print(f"[Medium]  {e}")
     return articles
 
 async def scrape_geeksforgeeks(query):
@@ -60,14 +60,14 @@ async def scrape_geeksforgeeks(query):
                     if len(text.strip()) > 300:
                         articles.append(Document(page_content=text, metadata={"source": url}))
         except Exception as e:
-            print(f"[GFG] ❌ {e}")
+            print(f"[GFG]  {e}")
     return articles
 
 async def main():
-    print("📚 Loading PDFs...")
+    print("Loading PDFs...")
     pdf_docs = load_and_split_pdfs(PDF_FOLDER)
 
-    print("🌐 Scraping web...")
+    print("Scraping web...")
     gfg_docs, medium_docs = await asyncio.gather(
         scrape_geeksforgeeks(SCRAPE_QUERY),
         scrape_medium(SCRAPE_QUERY)
@@ -75,16 +75,16 @@ async def main():
     wiki_docs = scrape_wikipedia(SCRAPE_QUERY)
 
     all_docs = pdf_docs + gfg_docs + medium_docs + wiki_docs
-    print(f"📄 Total raw documents: {len(all_docs)}")
+    print(f" Total raw documents: {len(all_docs)}")
 
     splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
     split_docs = splitter.split_documents(all_docs)
-    print(f"🔍 Total chunks: {len(split_docs)}")
+    print(f" Total chunks: {len(split_docs)}")
 
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
     vectordb = FAISS.from_documents(split_docs, embeddings)
     vectordb.save_local("vector_store")
-    print("✅ Vector store saved to './vector_store/'")
+    print("Vector store saved to './vector_store/'")
 
 if __name__ == "__main__":
     asyncio.run(main())
