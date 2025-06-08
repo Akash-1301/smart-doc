@@ -42,10 +42,10 @@ def query_ollama(prompt, model="phi3"):
         )
         return result.stdout.strip()
     except Exception as e:
-        return f"❌ Ollama error: {e}"
+        return f" Ollama error: {e}"
 
 def main():
-    st.title("📚 Expert Assistant")
+    st.title(" Expert Assistant")
 
     vectordb = load_vector_store()
     if not vectordb:
@@ -61,7 +61,7 @@ def main():
             return
 
         if profanity.contains_profanity(query):
-            st.error("❌ Please use respectful language when asking questions.")
+            st.error(" Please use respectful language when asking questions.")
             return
 
         with st.spinner("Searching..."):
